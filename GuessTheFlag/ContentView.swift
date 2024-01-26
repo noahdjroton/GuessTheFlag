@@ -11,15 +11,25 @@ struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     @State private var showingScore = false
+    @State private var showingFinalScore = false
     @State private var scoreTitle = ""
+    @State private var score = 0
+    @State private var numQuestionsMax = 0
     
     func flagTapped(_ number: Int) {
+        if (numQuestionsMax < 8) {numQuestionsMax += 1}
         if number == correctAnswer {
+            score += 1
             scoreTitle = "Correct"
         } else {
-            scoreTitle = "Wrong"
+            if (score > 0) {score -= 1}
+            scoreTitle = "Wrong! That’s the flag of \(countries[correctAnswer])"
         }
-        showingScore = true
+        if(numQuestionsMax == 8 ) {
+            showingFinalScore = true
+        } else {
+            showingScore = true
+        }
     }
     
     func askQuestion () {
@@ -27,25 +37,32 @@ struct ContentView: View {
         correctAnswer = Int.random(in: 0...2)
     }
     
+    func reset() {
+        askQuestion()
+        showingScore = false
+        showingFinalScore = false
+        scoreTitle = ""
+        score = 0
+        numQuestionsMax = 0
+    }
+    
     var body: some View {
         ZStack{
-            RadialGradient(stops: [
-                .init(color: Color(red: 0.1, green: 0.2, blue: 0.45), location: 0.3),
-                .init(color: Color(red: 0.76, green: 0.15, blue: 0.26), location: 0.3),
-            ], center: .top, startRadius: 200, endRadius: 400)
-            .ignoresSafeArea()
+            LinearGradient(colors: [.yellow, .orange], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
             VStack{
                 Spacer()
                 Text("Guess the flag")
                     .font(.largeTitle.weight(.bold))
                     .foregroundStyle(.white)
-                VStack(spacing: 15){
+                VStack(spacing: 20){
                     VStack {
                         Text("Tap the flag of")
                             .font(.subheadline.weight(.heavy))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white)
                         Text(countries[correctAnswer])
                             .font(.largeTitle.weight(.semibold))
+                            .foregroundStyle(.white)
                     }
                     
                     ForEach(0..<3) { number in
@@ -53,20 +70,17 @@ struct ContentView: View {
                             flagTapped(number)
                         } label: {
                             Image(countries[number])
-                                .clipShape(.capsule)
+                                .clipShape(.rect(cornerRadius: 10))
                                 .shadow(radius: 5)
                         }
                         
                     }
-                }.frame(maxWidth: .infinity)
-                    .padding(.vertical, 20)
-                    .background(.regularMaterial)
-                    .clipShape(.rect(cornerRadius: 20))
+                }
                 
                 Spacer()
                 Spacer()
                 
-                Text("Score ???")
+                Text("Score : \(score)")
                     .foregroundStyle(.white)
                     .font(.title.bold())
                 
@@ -76,9 +90,12 @@ struct ContentView: View {
         }
         
         .alert(scoreTitle, isPresented: $showingScore) {
+            Image(countries[correctAnswer])
             Button("Continue", action: askQuestion)
-        } message: {
-            Text("Your score is ???")
+        }
+        
+        .alert("Final Score", isPresented: $showingFinalScore) {
+            Button("Restart", action: reset)
         }
     }
 }
