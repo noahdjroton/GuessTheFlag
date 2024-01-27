@@ -7,6 +7,31 @@
 
 import SwiftUI
 
+struct FlagImage: View {
+    var flag: String
+
+    var body: some View {
+        Image(flag)
+            .clipShape(.rect(cornerRadius: 10))
+            .shadow(radius: 5)
+    }
+}
+
+struct Title: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle)
+            .fontWeight(.bold)
+            .foregroundStyle(.black)
+    }
+}
+
+extension View {
+    func titleStyle() -> some View {
+        modifier(Title())
+    }
+}
+
 struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
@@ -52,26 +77,23 @@ struct ContentView: View {
                 .ignoresSafeArea()
             VStack{
                 Spacer()
-                Text("Guess the flag")
-                    .font(.largeTitle.weight(.bold))
-                    .foregroundStyle(.white)
+                Text("Guess the flag").titleStyle()
                 VStack(spacing: 20){
                     VStack {
                         Text("Tap the flag of")
                             .font(.subheadline.weight(.heavy))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.black)
                         Text(countries[correctAnswer])
                             .font(.largeTitle.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.black)
                     }
                     
                     ForEach(0..<3) { number in
                         Button{
                             flagTapped(number)
                         } label: {
-                            Image(countries[number])
-                                .clipShape(.rect(cornerRadius: 10))
-                                .shadow(radius: 5)
+                            FlagImage(flag: countries[number])
+                               
                         }
                         
                     }
@@ -80,9 +102,7 @@ struct ContentView: View {
                 Spacer()
                 Spacer()
                 
-                Text("Score : \(score)")
-                    .foregroundStyle(.white)
-                    .font(.title.bold())
+                Text("Score : \(score)").titleStyle()
                 
                 Spacer()
             }
@@ -90,7 +110,6 @@ struct ContentView: View {
         }
         
         .alert(scoreTitle, isPresented: $showingScore) {
-            Image(countries[correctAnswer])
             Button("Continue", action: askQuestion)
         }
         
