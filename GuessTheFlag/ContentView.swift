@@ -98,6 +98,8 @@ struct ContentView: View {
                         } label: {
                             FlagImage(flag: countries[number])
                                 .rotationEffect(.degrees(tappedFlagNumber == number && showingScore ? 180 : 0))
+                                .opacity(tappedFlagNumber != number && showingScore ? 0.25 : 1)
+                                .animation(.easeInOut, value: showingScore)
                             }
                         
                     }
