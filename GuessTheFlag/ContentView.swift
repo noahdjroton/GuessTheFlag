@@ -40,6 +40,7 @@ struct ContentView: View {
     @State private var scoreTitle = ""
     @State private var score = 0
     @State private var numQuestionsMax = 0
+    @State private var tappedFlagNumber = -1;
     
     func flagTapped(_ number: Int) {
         if (numQuestionsMax < 8) {numQuestionsMax += 1}
@@ -90,11 +91,14 @@ struct ContentView: View {
                     
                     ForEach(0..<3) { number in
                         Button{
-                            flagTapped(number)
+                            tappedFlagNumber = number
+                            withAnimation {
+                                flagTapped(number)
+                            }
                         } label: {
                             FlagImage(flag: countries[number])
-                               
-                        }
+                                .rotationEffect(.degrees(tappedFlagNumber == number && showingScore ? 180 : 0))
+                            }
                         
                     }
                 }
